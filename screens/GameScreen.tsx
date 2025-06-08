@@ -1,133 +1,137 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import englishWords from 'an-array-of-english-words';
+import { View, Text, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-type RootStackParamList = {
-  Game: { startWord: string; targetWord: string };
-};
+type WordChainItem = { key: string };
 
-type GameScreenRouteProp = RouteProp<RootStackParamList, 'Game'>;
+export default function GameScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { startWord, targetWord } = route.params as { startWord: string; targetWord: string };
 
-const GameScreen = () => {
-  const route = useRoute<GameScreenRouteProp>();
-  const { startWord, targetWord } = route.params;
+  const [wordChain, setWordChain] = useState<WordChainItem[]>([{ key: startWord.toLowerCase() }]);
+  const [inputWord, setInputWord] = useState('');
+  const [isGameOver, setIsGameOver] = useState(false);
 
-  const [currentWord, setCurrentWord] = useState(startWord);
-  const [nextWord, setNextWord] = useState('');
-  const [chain, setChain] = useState([startWord]);
-
-  const isValidEnglishWord = (word: string) => {
-    return englishWords.includes(word.toLowerCase());
-  };
-
-  const isOneLetterDifferent = (word1: string, word2: string) => {
-    if (word1.length !== word2.length) return false;
+  const isOneLetterDiff = (a: string, b: string) => {
+    if (a.length !== b.length) return false;
     let diff = 0;
-    for (let i = 0; i < word1.length; i++) {
-      if (word1[i] !== word2[i]) diff++;
-      if (diff > 1) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) diff++;
     }
     return diff === 1;
   };
 
-  const handleNextWord = () => {
-    const word = nextWord.toLowerCase();
+  const isValidEnglishWord = (word: string) => {
+    // Replace this with a real dictionary API or JSON later
+    return /^[a-zA-Z]+$/.test(word);
+  };
 
-    if (!isValidEnglishWord(word)) {
-      Alert.alert('Invalid Word', `"${word}" is not a valid English word`);
-      return;
-    }
+  const handleSubmit = () => {
+    const prevWord = wordChain[wordChain.length - 1].key;
+    const nextWord = inputWord.trim().toLowerCase();
 
-    if (!isOneLetterDifferent(currentWord, word)) {
-      Alert.alert('Invalid Move', 'The word must differ by exactly one letter');
-      return;
-    }
+    if (!isValidEnglishWord(nextWord)) {
+      alert('❌ Not a valid English word!');
+    } else if (!isOneLetterDiff(prevWord, nextWord)) {
+      alert('⚠️ Must differ by exactly one letter!');
+    } else {
+      const newChain = [...wordChain, { key: nextWord }];
+      setWordChain(newChain);
+      setInputWord('');
 
-    setChain([...chain, word]);
-    setCurrentWord(word);
-    setNextWord('');
-
-    if (word === targetWord.toLowerCase()) {
-      Alert.alert('🎉 Success', 'You reached the target word!');
+      if (nextWord === targetWord.toLowerCase()) {
+        setIsGameOver(true);
+      }
     }
   };
 
+  const handlePlayAgain = () => {
+    navigation.navigate('Home' as never);
+  };
+
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Text style={styles.title}>Transform: {startWord.toUpperCase()} → {targetWord.toUpperCase()}</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>🔤 Transform "{startWord}" → "{targetWord}"</Text>
 
-      <Text style={styles.sub}>Current Word: <Text style={styles.currentWord}>{currentWord.toUpperCase()}</Text></Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Enter next word"
-        value={nextWord}
-        onChangeText={setNextWord}
-        autoCapitalize="none"
-      />
-
-      <Button title="Submit" onPress={handleNextWord} color="#48bb78" />
-
-      <Text style={styles.chainTitle}>Your Path:</Text>
       <FlatList
-        data={chain}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Text style={styles.chainItem}>{item.toUpperCase()}</Text>}
+        data={wordChain}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item }) => <Text style={styles.word}>{item.key}</Text>}
+        contentContainerStyle={{ marginVertical: 10 }}
       />
-    </KeyboardAvoidingView>
-  );
-};
 
-export default GameScreen;
+      {!isGameOver && (
+        <>
+          <TextInput
+            value={inputWord}
+            onChangeText={setInputWord}
+            placeholder="Enter next word"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+          />
+          <Button title="Submit" onPress={handleSubmit} />
+        </>
+      )}
+
+      {isGameOver && (
+        <View style={styles.overlay}>
+          <Text style={styles.congrats}>🎉 You Did It!</Text>
+          <Text style={styles.steps}>Steps taken: {wordChain.length - 1}</Text>
+          <Button title="Play Again" onPress={handlePlayAgain} />
+        </View>
+      )}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a202c',
     padding: 20,
-    paddingTop: 50,
+    backgroundColor: '#0e0e10',
   },
   title: {
     fontSize: 24,
-    color: '#f6e05e',
-    marginBottom: 10,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  sub: {
-    fontSize: 18,
-    color: '#f7fafc',
+    color: '#fff',
     marginBottom: 10,
     textAlign: 'center',
   },
-  currentWord: {
-    color: '#63b3ed',
-    fontWeight: 'bold',
+  word: {
+    fontSize: 20,
+    color: '#61dafb',
+    textAlign: 'center',
+    marginVertical: 4,
   },
   input: {
-    backgroundColor: '#2d3748',
-    color: 'white',
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 18,
-    marginBottom: 20,
-    borderColor: '#48bb78',
+    borderColor: '#fff',
     borderWidth: 1,
+    padding: 10,
+    color: '#fff',
+    marginBottom: 10,
+    borderRadius: 8,
   },
-  chainTitle: {
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  congrats: {
+    fontSize: 32,
+    color: '#00ff99',
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  steps: {
     fontSize: 18,
-    color: '#edf2f7',
-    marginTop: 20,
-    marginBottom: 5,
-  },
-  chainItem: {
-    fontSize: 16,
-    color: '#e2e8f0',
-    marginBottom: 4,
-    paddingLeft: 10,
+    color: '#fff',
+    marginBottom: 20,
   },
 });
