@@ -15,13 +15,6 @@ WordShift is a fun and challenging word transformation game built with React Nat
 
 ---
 
-## Demo
-
-![Screenshot of WordShift game screen](path_to_your_screenshot_here.png)  
-*(Replace with your actual screenshot URL or relative path)*
-
----
-
 ## Getting Started
 
 ### Prerequisites
@@ -43,41 +36,47 @@ WordShift is a fun and challenging word transformation game built with React Nat
 3. Install dependencies:
    ```bash
    npm install
- If you encounter dependency conflicts, try:
-   ```bash
-   npm install --legacy-peer-deps 
+4. If you encounter dependency conflicts, try:
+    ```bash
+   npm install --legacy-peer-deps
+
+---
 
 ### Running the App
 To start the Expo development server, run:
-```bash
-npx expo start
-This will open a browser window with Expo Dev Tools and display a QR code.
+   `npx expo start`.
+ This will open a browser window with Expo Dev Tools and display a QR code.
 
-### Running on iOS or Android
-On a physical device:
+**Running on iOS or Android**
 
-Install the Expo Go app from the App Store (iOS) or Google Play (Android).
-Scan the QR code from the Expo Dev Tools page or terminal.
-The app will open in Expo Go on your device.
-On an emulator or simulator:
+**On a physical device:**
+- Install the Expo Go app from the App Store (iOS) or Google Play (Android).
+- Scan the QR code from the Expo Dev Tools page or terminal.
+- The app will open in Expo Go on your device.
 
-For iOS Simulator (macOS only):
-Press i in the Expo Dev Tools terminal.
-For Android Emulator:
-Ensure Android Studio is installed and an emulator is running.
-Press a in the Expo Dev Tools terminal.
-How to Play
+**On an emulator or simulator:**
+
+1. For iOS Simulator (macOS only):
+   Press i in the Expo Dev Tools terminal.
+
+2. For Android Emulator:
+   Ensure Android Studio is installed and an emulator is running.
+   Press a in the Expo Dev Tools terminal.
+
+**How to Play**
 
 Enter the start word and the target word of the same length on the home screen.
 Start entering valid English words that differ by exactly one letter from the last word in the chain.
 Continue until you reach the target word.
 Once you reach the target word, a success screen will show your steps and let you play again.
-Tech Stack
 
-React Native (via Expo)
-TypeScript
-React Navigation
-Author
+---
 
-Anshuman Sengar
-GitHub Profile : https://github.com/Axshuman
+**Tech Stack**
+
+React Native (via Expo), TypeScript, React Navigation
+
+---
+
+**Author:**
+ Anshuman Sengar
